@@ -1,0 +1,59 @@
+{
+    "eslint.workingDirectories": [
+        "./lesson2-play-with-git",
+        "./lesson3-js-essentials-part1",
+        "./lesson4-arrays-and-objects",
+        "./lesson5-functions",
+        "./lesson6-try-catch-async",
+        "./lesson7-ts-basics",
+        "./lesson8-ts-interfaces-classes",
+        "./lesson9-oop-solid",
+        "./lesson10-test-frameworks-unit-tests/mocha",
+        "./lesson10-test-frameworks-unit-tests/jest",
+        "./lesson10-test-frameworks-unit-tests/vitest",
+        "./lesson11-mock-in-unit-testing/mocha-sinon",
+        "./lesson11-mock-in-unit-testing/vitest-mock",
+        "./lesson13-contract-testing",
+        "./lesson14-api-framework-workshop",
+        "./lesson16-cypress-puppeteer",
+        "./lesson17-selenium-webdriver-and-webdriver-io",
+        "./js-eslint-config",
+        {"mode": "auto"}
+    ],
+    "IDX.aI.enableInlineCompletion": true,
+    "IDX.aI.enableCodebaseIndexing": true,
+    "eslint.experimental.useFlatConfig": true,
+    "eslint.useFlatConfig": true,
+    "cucumberautocomplete.steps": [
+        "src/steps/*.steps.ts",
+        "src/**/steps/**/*.ts",
+        "src/steps/**/*.ts",
+        "src/steps/*.ts"
+    ],
+    "cucumberautocomplete.syncfeatures": "features/*feature",
+    "cucumber.features": [
+
+        "src/test/**/*.feature",
+        "features/**/*.feature",
+        "tests/**/*.feature",
+        "*specs*/**/.feature"
+    ],
+    "cucumberautocomplete.onTypeFormat": true,
+    "cucumber.glue": [
+    
+        "src/steps/**/*.ts",
+    ],
+    "typescript.implementationsCodeLens.enabled": true,
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}
