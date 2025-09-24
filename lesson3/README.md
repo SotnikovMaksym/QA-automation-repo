@@ -1,4 +1,4 @@
-# Lesson 3 Variables, operators, decision tries
+# Lesson 3 Arifmetics, decision-tree, logical, switch
 
 In order to use this config you have to install the following NPM packages
 ```
