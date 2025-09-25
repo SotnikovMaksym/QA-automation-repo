@@ -1,4 +1,4 @@
-let age = 30;
+const age = 16;
 switch (age) {
     case 16:
         console.log('You don\'t have permissions');
@@ -13,47 +13,47 @@ switch (age) {
         console.log('Wrong result');
 }
 
-age = 15;
-switch (true) {
-    case (age <= 17):
+const userName = 'Max';
+switch (userName) {
+    case 'John':
         console.log('You don\'t have permissions');
         break;
-    case (age >= 18):
+    case 'Max':
         console.log('Welcome');
         break;
-    case (age >= 30):
-        console.log('You are too old:D');
+    case 'Mark':
+        console.log('You don\'t have permissions');
+        break;
+    default:
+        console.log('Please fill in another name');
+}
+
+const a = 20;
+switch (a) {
+    case 10:
+        console.log('a != 20');
+        break;
+    case 15:
+        console.log('a != 20');
+        break;
+    case 20:
+        console.log('a == 20');
         break;
     default:
         console.log('Wrong result');
 }
 
-age = 20;
-switch (true) {
-    case (age <= 17):
-        console.log('You don\'t have permissions');
+const greeting = 'Hello';
+switch (greeting) {
+    case 'Hi':
+        console.log('Wrong result 1');
         break;
-    case (age >= 18):
-        console.log('Welcome');
+    case 'Hello, Max':
+        console.log('Wrong result 2');
         break;
-    case (age >= 30):
-        console.log('You are too old:D');
-        break;
-    default:
-        console.log('Wrong result');
-}
-
-age = 'Hello';
-switch (true) {
-    case (age <= 17):
-        console.log('You don\'t have permissions');
-        break;
-    case (age >= 18):
-        console.log('Welcome');
-        break;
-    case (age >= 30):
-        console.log('You are too old:D');
+    case 'Hi, John':
+        console.log('Wrong result 3');
         break;
     default:
-        console.log('Wrong result');
+        console.log('Please fill in another greeting');
 }
