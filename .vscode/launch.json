@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch index.ts",
+            "type": "node",
+            "request": "launch",
+            "runtimeArgs": ["-r", "ts-node/esm"],
+            "args": ["${workspaceFolder}/lesson8-ts-interfaces-classes/src/index.ts"]
+        }
+    ]
+}
