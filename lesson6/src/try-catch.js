@@ -1,32 +1,30 @@
 async function getData () {
     try {
-        const response1 = await fetch('https://imagined-source.com');
-        if (response1.ok) {
+        const response1 = await fetch('https://jsonplaceholder.typicode.com/__not-found__');
+        if (!response1.ok) {
+            throw new Error('First source can\'t be reached');
+        } else {
             const json1 = await response1.json();
             return getItemById(json1, 100);
         }
     } catch (e) {
-        console.log(e.message);
-    }
-    try {
-        const response2 = await fetch('https://jsonplaceholder.typicode.com/todos/');
-
-        if (response2.ok) {
+        if (e.message.includes('First source can\'t be reached')) {
+            const response2 = await fetch('https://jsonplaceholder.typicode.com/todos');
+            if (!response2.ok) throwError();
             const json2 = await response2.json();
             return getItemById(json2, 100);
+        } else {
+            throw e;
         }
-    } catch (e) {
-        console.log(e.message);
     }
-    createError();
+}
+
+function throwError () {
+    throw new Error('Two sources can\'t be reached');
 }
 
 function getItemById (json, id) {
     return json.find(item => item.id === id);
-}
-
-function createError () {
-    throw new Error('Can\'t reach both resources');
 }
 
 (async () => {
