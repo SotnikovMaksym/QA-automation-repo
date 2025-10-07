@@ -3,10 +3,9 @@ async function getData () {
         const response1 = await fetch('https://jsonplaceholder.typicode.com/__not-found__');
         if (!response1.ok) {
             throw new Error('First source can\'t be reached');
-        } else {
-            const json1 = await response1.json();
-            return getItemById(json1, 100);
         }
+        const json1 = await response1.json();
+        return getItemById(json1, 100);
     } catch (e) {
         if (e.message.includes('First source can\'t be reached')) {
             const response2 = await fetch('https://jsonplaceholder.typicode.com/todos');
