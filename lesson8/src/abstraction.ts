@@ -81,8 +81,8 @@ class Women extends Human {
     }
 }
 
-const ivan = new Men('Max', 180, 82, 28, '1997-03-01');
-const olga = new Women('Carla', 165, 60, 26, '1999-11-20');
+const max = new Men('Max', 180, 82, 28, '1997-03-01');
+const carla = new Women('Carla', 165, 60, 26, '1999-11-20');
 
-console.log(ivan.getSummaryInfo());
-console.log(olga.getSummaryInfo());
+console.log(max.getSummaryInfo());
+console.log(carla.getSummaryInfo());
