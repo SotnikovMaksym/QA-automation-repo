@@ -9,7 +9,13 @@ export interface ICar {
     move(targetSpeed: number): void;
     stop(): void;
     getCurrentSpeed(): number;
-    chargeBattery(): void;
-    refill(amount: number): void;
     getEnergyLevel(): number;
+}
+
+export interface IRechargeable {
+    chargeBattery(): void;
+}
+
+export interface IRefuelable {
+    refill(amount: number): void;
 }

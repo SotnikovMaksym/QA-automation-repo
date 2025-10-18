@@ -1,18 +1,19 @@
-import { ICar } from './abstractions/i-car';
+import { ICar, IRechargeable } from './abstractions/i-car';
 
-export class ElectricCar implements ICar {
+export class ElectricCar implements ICar, IRechargeable {
     public currentSpeed = 0;
     public capacity = 80;
-
+    public readonly brand: string;
+    public readonly model: string;
+    public readonly maxSpeed: number;
+    public readonly color: string;
     private readonly batteryCapacityKwh: number;
 
-    public constructor(
-        public readonly brand: string,
-        public readonly model: string,
-        public readonly maxSpeed: number,
-        public readonly color: string,
-        batteryCapacityKwh = 60
-    ) {
+    public constructor(brand: string, model: string, maxSpeed: number, color: string, batteryCapacityKwh = 60) {
+        this.brand = brand;
+        this.model = model;
+        this.maxSpeed = maxSpeed;
+        this.color = color;
         this.batteryCapacityKwh = batteryCapacityKwh;
     }
 
@@ -31,13 +32,8 @@ export class ElectricCar implements ICar {
     }
 
     public chargeBattery(): void {
-        this.capacity = this.clamp(this.capacity + 1, 0, 100);
+        this.capacity = this.clamp(this.capacity + 10, 0, 100);
         console.log(`[EV] Charging... ${this.capacity}%`);
-    }
-
-    public refill(amount: number): void {
-        this.capacity = this.clamp(this.capacity + amount, 0, 100);
-        console.log(`[EV] charged to ${this.capacity}%`);
     }
 
     public getEnergyLevel(): number {
@@ -46,7 +42,7 @@ export class ElectricCar implements ICar {
 
     public estimateRange(consumptionKwhPer100 = 18): number {
         const availableKwh = (this.capacity / 100) * this.batteryCapacityKwh;
-        return (availableKwh / consumptionKwhPer100) * 100;
+        return Math.round((availableKwh / consumptionKwhPer100) * 100);
     }
 
     private clamp(value: number, min: number, max: number): number {
