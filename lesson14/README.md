@@ -2,7 +2,7 @@
 
 
 
-Lesson 14 - Automated API testing with Jest, Axios, and TypeScript.Lesson 14 - Automated API testing with Jest, Axios, and TypeScript.## Endpoints:
+Lesson 14 - Automated API testing with Jest, Axios, and TypeScript.## Endpoints:
 
 
 
