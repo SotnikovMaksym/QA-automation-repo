@@ -1,0 +1,206 @@
+{
+    "info": {
+        "_postman_id": "965cd8f1-3a29-4550-b0a0-8bc36b771c26",
+        "name": "Jokes",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "13640958"
+    },
+    "item": [
+        {
+            "name": "jokes/random",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "\r",
+                            "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));\r",
+                            "\r",
+                            "pm.test(\"Content-Type is JSON\", () => {\r",
+                            "  pm.response.to.have.header(\"Content-Type\");\r",
+                            "  pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                            "});\r",
+                            "\r",
+                            "pm.test(\"Response time < 800ms\", () => pm.expect(pm.response.responseTime).to.be.below(800));\r",
+                            "\r",
+                            "const data = pm.response.json();\r",
+                            "\r",
+                            "pm.test(\"Has required keys\", () => {\r",
+                            "  [\"id\",\"type\",\"setup\",\"punchline\"].forEach(k => pm.expect(data).to.have.property(k));\r",
+                            "});\r",
+                            "\r",
+                            "pm.test(\"Field types are valid\", () => {\r",
+                            "  pm.expect(data.id).to.be.a(\"number\");\r",
+                            "  [\"type\",\"setup\",\"punchline\"].forEach(k => pm.expect(data[k]).to.be.a(\"string\"));\r",
+                            "});\r",
+                            "\r",
+                            "pm.test(\"Text fields are non-empty\", () => {\r",
+                            "  [\"type\",\"setup\",\"punchline\"].forEach(k => pm.expect((data[k]||\"\").trim().length).to.be.above(0));\r",
+                            "});\r",
+                            ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{url}}/jokes/random",
+                    "host": ["{{url}}"],
+                    "path": ["jokes", "random"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "jokes/random/5",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "const arr = [].concat(pm.response.json());\r",
+                            "\r",
+                            "pm.test('returns 5 jokes', () => pm.expect(arr.length).to.eql(5));\r",
+                            "\r",
+                            "pm.test('first item has required fields', () => {\r",
+                            "  const j = arr[0];\r",
+                            "  ['id','type','setup','punchline'].forEach(k => pm.expect(j).to.have.property(k));\r",
+                            "});\r",
+                            ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{url}}/jokes/random/5",
+                    "host": ["{{url}}"],
+                    "path": ["jokes", "random", "5"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "jokes/ten",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200\", () => pm.response.to.have.status(200));\r",
+                            "\r",
+                            "pm.test(\"Content-Type is JSON\", () => {\r",
+                            "  pm.response.to.have.header(\"Content-Type\");\r",
+                            "  pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");\r",
+                            "});\r",
+                            "\r",
+                            "const arr = pm.response.json();\r",
+                            "pm.test(\"Body is array of length 10\", () => {\r",
+                            "  pm.expect(Array.isArray(arr)).to.be.true;\r",
+                            "  pm.expect(arr.length).to.eql(10);\r",
+                            "});\r",
+                            "\r",
+                            "pm.test(\"Each joke has valid schema and unique ids\", () => {\r",
+                            "  const ids = new Set();\r",
+                            "  arr.forEach(j => {\r",
+                            "    [\"id\",\"type\",\"setup\",\"punchline\"].forEach(k => pm.expect(j).to.have.property(k));\r",
+                            "    pm.expect(j.id).to.be.a(\"number\");\r",
+                            "    [\"type\",\"setup\",\"punchline\"].forEach(k => pm.expect(j[k]).to.be.a(\"string\").and.not.empty);\r",
+                            "    ids.add(j.id);\r",
+                            "  });\r",
+                            "  pm.expect(ids.size).to.eql(arr.length);\r",
+                            "});\r",
+                            ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{url}}/jokes/ten",
+                    "host": ["{{url}}"],
+                    "path": ["jokes", "ten"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "jokes/programming/random",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test('type = programming', () => {\r",
+                            "  const joke = [].concat(pm.response.json())[0];\r",
+                            "  pm.expect(joke.type).to.eql('programming');\r",
+                            "});\r",
+                            ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{url}}/jokes/programming/random",
+                    "host": ["{{url}}"],
+                    "path": ["jokes", "programming", "random"]
+                }
+            },
+            "response": []
+        },
+        {
+            "name": "jokes/programming/ten",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "const arr = [].concat(pm.response.json());\r",
+                            "\r",
+                            "pm.test('returns 10 jokes', () => pm.expect(arr.length).to.eql(10));\r",
+                            "\r",
+                            "pm.test('all jokes are of type \"programming\"', () => {\r",
+                            "  pm.expect(arr.every(j => j.type === 'programming')).to.be.true;\r",
+                            "});\r",
+                            ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{url}}/jokes/programming/ten",
+                    "host": ["{{url}}"],
+                    "path": ["jokes", "programming", "ten"]
+                }
+            },
+            "response": []
+        }
+    ]
+}
