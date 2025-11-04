@@ -1,0 +1,421 @@
+{
+	"info": {
+		"_postman_id": "82638778-e6d6-4087-963b-f77888ced008",
+		"name": "CatAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13640958"
+	},
+	"item": [
+		{
+			"name": "1 random image",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"const responseData = pm.response.json();\r",
+							"pm.test(\"Non-empty array\", () => pm.expect(responseData.length).to.be.above(0));\r",
+							"pm.test(\"Has image id and url\", () => {\r",
+							"  pm.expect(responseData[0]).to.have.property(\"id\");\r",
+							"  pm.expect(responseData[0]).to.have.property(\"url\");\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"imageId\", responseData[0].id);\r",
+							"pm.collectionVariables.set(\"imageUrl\", responseData[0].url);\r",
+							"pm.test(\"imageId and imageUrl saved\", () => {\r",
+							"  pm.expect(pm.collectionVariables.get(\"imageId\")).to.be.a(\"string\");\r",
+							"  pm.expect(pm.collectionVariables.get(\"imageUrl\")).to.be.a(\"string\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if(!pm.collectionVariables.get('apiKey')) throw new Error('Missing apiKey');"
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/images/search?limit=1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"images",
+						"search"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Request to Create an 'Up' Vote",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 201\", () => pm.response.to.have.status(201));\r",
+							"const body = pm.response.json();\r",
+							"pm.test(\"Vote success\", () => pm.expect((body.message||\"\").toLowerCase()).to.eql(\"success\"));\r",
+							"pm.collectionVariables.set(\"voteId\", body.id);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"image_id\":\"{{imageId}}\",\r\n    \"sub_id\":\"{{subId}}\",\r\n    \"value\": 7\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/votes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"votes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "create a 'Favourite'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"const body = pm.response.json();\r",
+							"pm.test(\"Favourite success\", () => pm.expect((body.message||\"\").toLowerCase()).to.eql(\"success\"));\r",
+							"pm.collectionVariables.set(\"favouriteId\", body.id);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"image_id\": \"{{imageId}}\",\r\n  \"sub_id\": \"{{subId}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/favourites",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"favourites"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get the Votes by 'sub_id'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"const list = pm.response.json();\r",
+							"const voteId = Number(pm.collectionVariables.get(\"voteId\"));\r",
+							"const imageId = pm.collectionVariables.get(\"imageId\");\r",
+							"const imageUrl = pm.collectionVariables.get(\"imageUrl\");\r",
+							"\r",
+							"pm.test(\"Contains our vote\", () => {\r",
+							"  const found = list.some(v => Number(v.id) === voteId && v.image_id === imageId);\r",
+							"  pm.expect(found).to.be.true;\r",
+							"});\r",
+							"\r",
+							"const ourVote = list.find(v => Number(v.id) === voteId);\r",
+							"pm.test(\"Vote has image object\", () => {\r",
+							"  pm.expect(ourVote).to.have.property(\"image\");\r",
+							"  pm.expect(ourVote.image).to.be.an(\"object\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Image object has correct id and url\", () => {\r",
+							"  pm.expect(ourVote.image).to.have.property(\"id\");\r",
+							"  pm.expect(ourVote.image.id).to.eql(imageId);\r",
+							"  pm.expect(ourVote.image).to.have.property(\"url\");\r",
+							"  pm.expect(ourVote.image.url).to.eql(imageUrl);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/votes?sub_id={{subId}}&limit=100",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"votes"
+					],
+					"query": [
+						{
+							"key": "sub_id",
+							"value": "{{subId}}"
+						},
+						{
+							"key": "limit",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Getting Favourites by 'sub_id'",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"const list = pm.response.json();\r",
+							"const favouriteId = Number(pm.collectionVariables.get(\"favouriteId\"));\r",
+							"const imageId = pm.collectionVariables.get(\"imageId\");\r",
+							"const imageUrl = pm.collectionVariables.get(\"imageUrl\");\r",
+							"\r",
+							"pm.test(\"Contains our favourite\", () => {\r",
+							"  const found = list.some(f => Number(f.id) === favouriteId && f.image_id === imageId);\r",
+							"  pm.expect(found).to.be.true;\r",
+							"});\r",
+							"\r",
+							"const ourFavourite = list.find(f => Number(f.id) === favouriteId);\r",
+							"pm.test(\"Favourite has image object\", () => {\r",
+							"  pm.expect(ourFavourite).to.have.property(\"image\");\r",
+							"  pm.expect(ourFavourite.image).to.be.an(\"object\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Image object has correct id and url\", () => {\r",
+							"  pm.expect(ourFavourite.image).to.have.property(\"id\");\r",
+							"  pm.expect(ourFavourite.image.id).to.eql(imageId);\r",
+							"  pm.expect(ourFavourite.image).to.have.property(\"url\");\r",
+							"  pm.expect(ourFavourite.image.url).to.eql(imageUrl);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/favourites?sub_id={{subId}}&limit=100",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"favourites"
+					],
+					"query": [
+						{
+							"key": "sub_id",
+							"value": "{{subId}}"
+						},
+						{
+							"key": "limit",
+							"value": "100"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deleting Favourites",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"const body = pm.response.json();\r",
+							"pm.test(\"Favourite delete success\", () => pm.expect((body.message||\"\").toLowerCase()).to.eql(\"success\"));\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/favourites/{{favouriteId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"favourites",
+						"{{favouriteId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Vote",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200\", () => pm.response.to.have.status(200));\r",
+							"const body = pm.response.json();\r",
+							"pm.test(\"Vote delete success\", () => pm.expect((body.message||\"\").toLowerCase()).to.eql(\"success\"));\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/votes/{{voteId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"votes",
+						"{{voteId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{apiKey}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "x-api-key",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": ""
+		},
+		{
+			"key": "subId",
+			"value": ""
+		},
+		{
+			"key": "imageId",
+			"value": ""
+		},
+		{
+			"key": "imageUrl",
+			"value": ""
+		},
+		{
+			"key": "voteId",
+			"value": ""
+		},
+		{
+			"key": "favouriteId",
+			"value": ""
+		},
+		{
+			"key": "apiKey",
+			"value": ""
+		}
+	]
+}
