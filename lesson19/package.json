@@ -1,10 +1,26 @@
 {
-  "name": "lesson18-19",
+  "name": "lesson19-football-automation",
   "version": "1.0.0",
-  "description": "",
+  "description": "Playwright test automation project for Football.ua using component-based Page Object Model",
   "main": "index.js",
-  "scripts": {},
-  "keywords": [],
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\""
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "e2e-testing",
+    "page-object-model",
+    "component-based",
+    "test-automation"
+  ],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
