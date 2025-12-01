@@ -17,7 +17,7 @@
     "cucumber:report": "cucumber-js && node -e \"require('open')('reports/cucumber-report.html')\"",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"features/**/*.ts\""
+    "format": "prettier --write \"src/**/*.ts\""
   },
   "keywords": [
     "playwright",
