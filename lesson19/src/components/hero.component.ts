@@ -1,26 +1,24 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
 import { BaseComponent } from './base-component';
-import { WebElement } from '../elements/web-element';
 
 export class HeroComponent extends BaseComponent {
-    private readonly sectionLocator;
+    private readonly sectionLocator: Locator;
 
     public constructor(page: Page) {
         super(page);
         this.sectionLocator = this.getSectionByHeading(/ГОЛОВНЕ ЗА ДОБУ/i);
     }
 
-    private getSectionByHeading(heading: RegExp): ReturnType<Page['locator']> {
+    private getSectionByHeading(heading: RegExp): Locator {
         const headingLocator = this.page.getByRole('heading', { name: heading }).first();
         return this.page.locator('section').filter({ has: headingLocator }).first();
     }
 
-    public getArticleLinks(): WebElement {
-        const locator = this.sectionLocator.getByRole('link').filter({ hasText: /./ });
-        return new WebElement(this.page, locator);
+    private getArticleLinks(): Locator {
+        return this.sectionLocator.getByRole('link').filter({ hasText: /./ });
     }
 
-    public getArticleByIndex(index: number): WebElement {
+    private getArticleByIndex(index: number): Locator {
         return this.getArticleLinks().nth(index);
     }
 
@@ -31,9 +29,9 @@ export class HeroComponent extends BaseComponent {
         const sliceEnd = Math.min(limit, count);
 
         for (let i = 0; i < sliceEnd; i++) {
-            const text = await articleLinks.nth(i).getText();
-            if (text) {
-                titles.push(text);
+            const text = await articleLinks.nth(i).innerText();
+            if (text?.trim()) {
+                titles.push(text.trim());
             }
         }
 
@@ -42,9 +40,13 @@ export class HeroComponent extends BaseComponent {
 
     public async clickArticleByIndex(index: number): Promise<string> {
         const article = this.getArticleByIndex(index);
-        const title = await article.getText();
+        const title = await article.innerText();
         await article.click();
-        return title;
+        return title.trim();
+    }
+
+    public getSection(): Locator {
+        return this.sectionLocator;
     }
 
     public async waitForReady(): Promise<void> {

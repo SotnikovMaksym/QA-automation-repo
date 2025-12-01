@@ -3,7 +3,6 @@ import { HeaderComponent } from '../components/header.component';
 import { HeroComponent } from '../components/hero.component';
 import { MatchCenterComponent, MatchRowData } from '../components/match-center.component';
 import { CookieConsentComponent } from '../components/cookie-consent.component';
-import { WebElement } from '../elements/web-element';
 
 export class FootballUaHomePage {
     public readonly url = 'https://football.ua/';
@@ -24,10 +23,6 @@ export class FootballUaHomePage {
         await this.page.goto(this.url, { waitUntil: 'domcontentloaded' });
         await this.page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => undefined);
         await this.cookieConsent.acceptIfPresent();
-    }
-
-    public getTopNavLink(label: string): WebElement {
-        return this.header.getNavLink(label);
     }
 
     public async getHeroArticleTitles(limit = 5): Promise<string[]> {

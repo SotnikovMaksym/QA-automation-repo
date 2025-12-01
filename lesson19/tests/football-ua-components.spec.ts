@@ -10,8 +10,7 @@ test.describe('Football.ua Components', () => {
 
         const links = ['УКРАЇНА', 'АНГЛІЯ', 'ІСПАНІЯ'];
         for (const link of links) {
-            const isVisible = await headerComponent.isNavLinkVisible(link);
-            expect(isVisible, `${link} navigation link should be visible`).toBe(true);
+            await expect(headerComponent.getNavLink(link), `${link} navigation link should be visible`).toBeVisible();
         }
     });
 
@@ -32,8 +31,7 @@ test.describe('Football.ua Components', () => {
     test('should display match center with valid fixture data', async ({ homePage }) => {
         const matchCenter = homePage.matchCenter;
 
-        const isVisible = await matchCenter.isVisible();
-        expect(isVisible).toBe(true);
+        await expect(matchCenter.getSection()).toBeVisible();
 
         const matchData = await matchCenter.getMatchData();
 
@@ -48,22 +46,17 @@ test.describe('Football.ua Components', () => {
     test('should load all page components successfully', async ({ homePage }) => {
         await Promise.all([homePage.header.waitForReady(), homePage.hero.waitForReady(), homePage.matchCenter.waitForReady()]);
 
-        const headerVisible = await homePage.header.isNavLinkVisible('УКРАЇНА');
-        const heroVisible = await homePage.hero.isVisible();
-        const matchCenterVisible = await homePage.matchCenter.isVisible();
-
-        expect(headerVisible && heroVisible && matchCenterVisible).toBe(true);
+        await expect(homePage.header.getNavLink('УКРАЇНА')).toBeVisible();
+        await expect(homePage.hero.getSection()).toBeVisible();
+        await expect(homePage.matchCenter.getSection()).toBeVisible();
     });
 
-    test('should access navigation link through WebElement wrapper', async ({ homePage }) => {
+    test('should access navigation link directly through component', async ({ homePage }) => {
         const navLink = homePage.header.getNavLink('УКРАЇНА');
 
-        expect(await navLink.isVisible()).toBe(true);
+        await expect(navLink).toBeVisible();
 
-        const locator = navLink.getLocator();
-        await expect(locator).toBeVisible();
-
-        const text = await navLink.getText();
+        const text = await homePage.header.getNavLinkText('УКРАЇНА');
         expect(text).toContain('УКРАЇНА');
     });
 });

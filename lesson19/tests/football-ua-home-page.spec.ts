@@ -10,12 +10,12 @@ test.describe('Football.ua home page', () => {
 
         for (const linkLabel of expectedLinks) {
             const navLink = homePage.header.getNavLink(linkLabel);
-            await expect(navLink.getLocator(), `Missing nav link: ${linkLabel}`).toBeVisible();
+            await expect(navLink, `Missing nav link: ${linkLabel}`).toBeVisible();
         }
     });
 
     test('should display hero section with article links', async ({ homePage }) => {
-        await expect(await homePage.hero.isVisible()).toBe(true);
+        await expect(homePage.hero.getSection()).toBeVisible();
 
         const titles = await homePage.hero.getArticleTitles(3);
         expect(titles.length, 'Hero block should have at least one article').toBeGreaterThan(0);
@@ -39,7 +39,7 @@ test.describe('Football.ua home page', () => {
     });
 
     test('should display match center with fixtures', async ({ homePage }) => {
-        await expect(await homePage.matchCenter.isVisible()).toBe(true);
+        await expect(homePage.matchCenter.getSection()).toBeVisible();
 
         const rowCount = await homePage.matchCenter.getMatchRowsCount();
         expect(rowCount, 'Match center should have at least one match row').toBeGreaterThan(0);
@@ -66,12 +66,8 @@ test.describe('Football.ua home page', () => {
     test('should load all page components successfully', async ({ homePage }) => {
         await homePage.waitForPageReady();
 
-        const headerVisible = await homePage.header.getNavLink('УКРАЇНА').isVisible();
-        const heroVisible = await homePage.hero.isVisible();
-        const matchCenterVisible = await homePage.matchCenter.isVisible();
-
-        expect(headerVisible, 'Header should be visible').toBe(true);
-        expect(heroVisible, 'Hero section should be visible').toBe(true);
-        expect(matchCenterVisible, 'Match center should be visible').toBe(true);
+        await expect(homePage.header.getNavLink('УКРАЇНА')).toBeVisible();
+        await expect(homePage.hero.getSection()).toBeVisible();
+        await expect(homePage.matchCenter.getSection()).toBeVisible();
     });
 });
