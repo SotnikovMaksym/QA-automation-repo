@@ -1,12 +1,13 @@
 import { Before, After, AfterStep, Status, BeforeAll, AfterAll } from '@cucumber/cucumber';
 import { CustomWorld } from './world';
 
-BeforeAll(function () {
+BeforeAll(async function () {
     console.log('=== Starting Test Suite ===');
+    await CustomWorld.launchBrowser();
 });
 
 Before(async function (this: CustomWorld) {
-    await this.init();
+    await this.setupScenario();
 });
 
 AfterStep(async function (this: CustomWorld, { result, pickle }) {
@@ -21,9 +22,10 @@ AfterStep(async function (this: CustomWorld, { result, pickle }) {
 });
 
 After(async function (this: CustomWorld) {
-    await this.cleanup();
+    await this.teardownScenario();
 });
 
-AfterAll(function () {
+AfterAll(async function () {
     console.log('=== Test Suite Completed ===');
+    await CustomWorld.closeGlobalBrowser();
 });
