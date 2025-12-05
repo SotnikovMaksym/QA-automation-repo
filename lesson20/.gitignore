@@ -1,0 +1,40 @@
+
+# Dependencies
+node_modules/
+package-lock.json
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+.auth/
+
+# Cucumber Reports
+/reports/
+cucumber-report.html
+cucumber-report.json
+screenshots/
+videos/
+
+# TypeScript
+dist/
+*.tsbuildinfo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
