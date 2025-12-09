@@ -1,0 +1,179 @@
+name: Nightly Full Tests
+
+on:
+    schedule:
+        # Run every night at 2 AM UTC (4 AM Kyiv time)
+        - cron: '0 2 * * *'
+    workflow_dispatch:
+
+jobs:
+    test-full:
+        name: Full Test Suite (${{ matrix.browser }})
+        timeout-minutes: 120
+        runs-on: ubuntu-latest
+
+        strategy:
+            fail-fast: false
+            matrix:
+                browser: [chromium, firefox, webkit]
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '20'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Playwright Browser - ${{ matrix.browser }}
+              run: npx playwright install --with-deps ${{ matrix.browser }}
+
+            - name: Run Full Test Suite
+              run: npx playwright test --project=${{ matrix.browser }} --retries=2
+              continue-on-error: true
+
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: nightly-results-${{ matrix.browser }}
+                  path: |
+                      test-results/
+                      playwright-report/
+                  retention-days: 14
+
+            - name: Upload Allure results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: nightly-allure-${{ matrix.browser }}
+                  path: allure-results/
+                  retention-days: 14
+
+    generate-report:
+        name: Generate Nightly Report
+        runs-on: ubuntu-latest
+        needs: test-full
+        if: always()
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v6
+
+            - name: Download all Allure results
+              uses: actions/download-artifact@v4
+              with:
+                  pattern: nightly-allure-*
+                  path: allure-results
+                  merge-multiple: true
+
+            - name: Get Allure history
+              uses: actions/checkout@v6
+              if: always()
+              continue-on-error: true
+              with:
+                  ref: gh-pages
+                  path: gh-pages
+
+            - name: Setup Allure Report
+              uses: simple-elf/allure-report-action@master
+              if: always()
+              with:
+                  allure_results: allure-results
+                  allure_history: allure-history
+                  keep_reports: 30
+
+            - name: Deploy report to GitHub Pages
+              if: always()
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_branch: gh-pages
+                  publish_dir: allure-history
+
+            - name: Create summary
+              if: always()
+              run: |
+                  echo "### 🌙 Nightly Test Run Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**Date**: $(date +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "**Browsers Tested**:" >> $GITHUB_STEP_SUMMARY
+                  echo "- ✅ Chromium" >> $GITHUB_STEP_SUMMARY
+                  echo "- ✅ Firefox" >> $GITHUB_STEP_SUMMARY
+                  echo "- ✅ WebKit" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "📊 [View Allure Report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ github.run_number }})" >> $GITHUB_STEP_SUMMARY
+
+    notify:
+        name: Send Notifications
+        runs-on: ubuntu-latest
+        needs: [test-full, generate-report]
+        if: always()
+
+        steps:
+            - name: Check test results
+              id: check
+              run: |
+                  if [ "${{ needs.test-full.result }}" == "success" ]; then
+                    echo "status=✅ All tests passed" >> $GITHUB_OUTPUT
+                  else
+                    echo "status=❌ Some tests failed" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Create issue on failure
+              if: needs.test-full.result != 'success'
+              uses: actions/github-script@v8
+              with:
+                  script: |
+                      const title = `🌙 Nightly Test Failed - ${new Date().toISOString().split('T')[0]}`;
+                      const body = `
+                      ## Nightly Test Run Failed
+
+                      **Run Date**: ${new Date().toISOString()}
+                      **Workflow**: [${context.workflow}](${context.payload.repository.html_url}/actions/runs/${context.runId})
+                      **Branch**: ${context.ref}
+
+                      ### Details
+                      Some tests failed during the nightly run. Please review the test results and Allure report.
+
+                      ### Links
+                      - [Workflow Run](${context.payload.repository.html_url}/actions/runs/${context.runId})
+                      - [Allure Report](https://${context.repo.owner}.github.io/${context.repo.repo}/${context.runNumber})
+
+                      ### Action Required
+                      - [ ] Review failed tests
+                      - [ ] Investigate root cause
+                      - [ ] Fix issues or update tests
+                      - [ ] Close this issue when resolved
+                      `;
+
+                      // Check if similar issue already exists
+                      const issues = await github.rest.issues.listForRepo({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        state: 'open',
+                        labels: 'nightly-failure',
+                        per_page: 1
+                      });
+
+                      if (issues.data.length === 0) {
+                        await github.rest.issues.create({
+                          owner: context.repo.owner,
+                          repo: context.repo.repo,
+                          title: title,
+                          body: body,
+                          labels: ['bug', 'nightly-failure', 'automated']
+                        });
+                      }
+
+            - name: Summary
+              run: |
+                  echo "### 📬 Notification Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "Status: ${{ steps.check.outputs.status }}" >> $GITHUB_STEP_SUMMARY
+
