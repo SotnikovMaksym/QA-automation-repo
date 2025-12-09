@@ -12,6 +12,9 @@ on:
 
 jobs:
     test:
+        defaults:
+            run:
+                working-directory: lesson22
         name: Run Playwright Tests
         timeout-minutes: 60
         runs-on: ubuntu-latest
@@ -106,3 +109,4 @@ jobs:
               run: |
                   echo "### 📊 Allure Report" >> $GITHUB_STEP_SUMMARY
                   echo "Report is available at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+

@@ -35,6 +35,9 @@ on:
 
 jobs:
     test:
+        defaults:
+            run:
+                working-directory: lesson22
         name: Manual Test Execution
         timeout-minutes: 60
         runs-on: ubuntu-latest
@@ -119,3 +122,4 @@ jobs:
                   echo "- **Test File**: ${{ inputs.test-file || 'All tests' }}" >> $GITHUB_STEP_SUMMARY
                   echo "- **Headed Mode**: ${{ inputs.headed }}" >> $GITHUB_STEP_SUMMARY
                   echo "- **Workers**: ${{ inputs.workers }}" >> $GITHUB_STEP_SUMMARY
+

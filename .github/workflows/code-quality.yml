@@ -9,6 +9,9 @@ on:
 
 jobs:
     lint:
+        defaults:
+            run:
+                working-directory: lesson22
         name: ESLint Check
         runs-on: ubuntu-latest
 
@@ -72,3 +75,4 @@ jobs:
                   echo "" >> $GITHUB_STEP_SUMMARY
                   echo "- **ESLint**: ${{ needs.lint.result }}" >> $GITHUB_STEP_SUMMARY
                   echo "- **Prettier**: ${{ needs.prettier.result }}" >> $GITHUB_STEP_SUMMARY
+
