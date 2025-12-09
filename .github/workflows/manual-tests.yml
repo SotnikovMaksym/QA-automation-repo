@@ -1,0 +1,121 @@
+name: Manual Test Run
+
+on:
+    workflow_dispatch:
+        inputs:
+            browser:
+                description: 'Browser to run tests on'
+                required: true
+                default: 'chromium'
+                type: choice
+                options:
+                    - chromium
+                    - firefox
+                    - webkit
+                    - all
+            test-file:
+                description: 'Specific test file to run (leave empty to run all)'
+                required: false
+                type: string
+            headed:
+                description: 'Run tests in headed mode'
+                required: false
+                type: boolean
+                default: false
+            workers:
+                description: 'Number of parallel workers'
+                required: false
+                type: choice
+                default: '4'
+                options:
+                    - '1'
+                    - '2'
+                    - '4'
+                    - '8'
+
+jobs:
+    test:
+        name: Manual Test Execution
+        timeout-minutes: 60
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Playwright Browsers
+              run: |
+                  if [ "${{ inputs.browser }}" = "all" ]; then
+                    npx playwright install --with-deps
+                  else
+                    npx playwright install --with-deps ${{ inputs.browser }}
+                  fi
+
+            - name: Run Playwright tests
+              run: |
+                  TEST_FILE="${{ inputs.test-file }}"
+                  BROWSER="${{ inputs.browser }}"
+                  HEADED="${{ inputs.headed }}"
+                  WORKERS="${{ inputs.workers }}"
+
+                  CMD="npx playwright test"
+
+                  if [ ! -z "$TEST_FILE" ]; then
+                    CMD="$CMD $TEST_FILE"
+                  fi
+
+                  if [ "$BROWSER" != "all" ]; then
+                    CMD="$CMD --project=$BROWSER"
+                  fi
+
+                  if [ "$HEADED" = "true" ]; then
+                    CMD="$CMD --headed"
+                  fi
+
+                  CMD="$CMD --workers=$WORKERS"
+
+                  echo "Running: $CMD"
+                  eval $CMD
+              continue-on-error: true
+
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: manual-test-results
+                  path: |
+                      test-results/
+                      playwright-report/
+                      allure-results/
+                  retention-days: 30
+
+            - name: Generate Allure Report
+              if: always()
+              run: |
+                  npm run allure:generate || true
+
+            - name: Upload Allure report
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: allure-report
+                  path: allure-report/
+                  retention-days: 30
+
+            - name: Test Summary
+              if: always()
+              run: |
+                  echo "### 🎯 Manual Test Run Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Browser**: ${{ inputs.browser }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Test File**: ${{ inputs.test-file || 'All tests' }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Headed Mode**: ${{ inputs.headed }}" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Workers**: ${{ inputs.workers }}" >> $GITHUB_STEP_SUMMARY
