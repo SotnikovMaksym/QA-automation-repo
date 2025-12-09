@@ -24,7 +24,7 @@ jobs:
 
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: Setup Node.js
               uses: actions/setup-node@v4
@@ -68,7 +68,7 @@ jobs:
 
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
 
             - name: Download all Allure results
               uses: actions/download-artifact@v4
@@ -78,7 +78,7 @@ jobs:
                   merge-multiple: true
 
             - name: Get Allure history
-              uses: actions/checkout@v4
+              uses: actions/checkout@v6
               if: always()
               continue-on-error: true
               with:
