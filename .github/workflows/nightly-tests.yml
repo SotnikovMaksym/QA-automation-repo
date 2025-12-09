@@ -128,7 +128,7 @@ jobs:
 
             - name: Create issue on failure
               if: needs.test-full.result != 'success'
-              uses: actions/github-script@v7
+              uses: actions/github-script@v8
               with:
                   script: |
                       const title = `🌙 Nightly Test Failed - ${new Date().toISOString().split('T')[0]}`;
