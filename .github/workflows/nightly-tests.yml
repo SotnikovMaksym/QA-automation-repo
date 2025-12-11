@@ -1,9 +1,6 @@
 name: Nightly Full Tests
 
 on:
-    schedule:
-        # Run every night at 2 AM UTC (4 AM Kyiv time)
-        - cron: '0 2 * * *'
     workflow_dispatch:
 
 jobs:
