@@ -36,7 +36,7 @@ jobs:
 
             - name: Upload test results
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: nightly-results-${{ matrix.browser }}
                   path: |
@@ -46,7 +46,7 @@ jobs:
 
             - name: Upload Allure results
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: nightly-allure-${{ matrix.browser }}
                   path: allure-results/
