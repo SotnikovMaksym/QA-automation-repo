@@ -44,7 +44,7 @@ jobs:
 
             - name: Upload test results
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: playwright-results-${{ matrix.shardIndex }}
                   path: |
@@ -54,7 +54,7 @@ jobs:
 
             - name: Upload Allure results
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: allure-results-${{ matrix.shardIndex }}
                   path: allure-results/
@@ -95,7 +95,7 @@ jobs:
 
             - name: Upload Allure report
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v6
               with:
                   name: allure-report-${{ matrix.shardIndex }}
                   path: allure-history
