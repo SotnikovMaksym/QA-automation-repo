@@ -9,45 +9,37 @@ This project demonstrates:
 
 ## Prerequisites
 
-### 1. WSL 2 Installation
+### 1. WSL 2 Installation (Windows 10/11)
 
-#### Check WSL installation
+Check WSL installation:
 ```powershell
 wsl --status
 ```
 
-#### Install WSL 2 (if not installed)
+Install WSL 2:
 ```powershell
 wsl --install
 ```
 
-**System reboot required** after installation.
+System reboot required after installation.
 
-#### Verify WSL version
+Verify WSL version:
 ```powershell
 wsl --list --verbose
 ```
 
-Ensure you're using WSL version 2.
-
-#### Install Ubuntu (if needed)
+Install Ubuntu:
 ```powershell
 wsl --install -d Ubuntu
 ```
 
 ### 2. Docker Desktop Installation
 
-1. Download Docker Desktop for Windows from:
-   https://www.docker.com/products/docker-desktop/
+Download Docker Desktop: https://www.docker.com/products/docker-desktop/
 
-2. Run the installer and follow the instructions
+Enable WSL 2 based engine in Docker Desktop Settings → General
 
-3. After installation, ensure Docker Desktop uses WSL 2:
-   - Open Docker Desktop
-   - Go to Settings → General
-   - Enable "Use the WSL 2 based engine"
-
-4. Verify installation:
+Verify installation:
 ```powershell
 docker --version
 docker compose version
@@ -57,8 +49,18 @@ docker compose version
 
 ```
 lesson23/
+├── docker-compose.yml              # Main orchestration file
+├── Dockerfile                      # Playwright tests container
+├── playwright.config.ts            # Playwright configuration
+├── .env.example                    # Environment variables template
+├── .dockerignore                  # Docker exclusions
+├── expense-tracker-app/
+│   ├── Dockerfile                 # Application container
+│   ├── nginx.conf                 # Nginx configuration
+│   ├── .dockerignore             # Application exclusions
+│   └── package.json              # App dependencies
 ├── reportportal/
-│   └── docker-compose.yml          # ReportPortal configuration
+│   └── docker-compose.yml        # ReportPortal services
 ├── tests/
 │   └── expense-tracker/
 │       └── expense-tracker.spec.ts # UI tests
@@ -66,43 +68,46 @@ lesson23/
 │   └── pages/
 │       └── expense-tracker/
 │           └── expense-tracker-page.ts # Page Object
+├── package.json                   # Test dependencies
+├── tsconfig.json                  # TypeScript config
 └── README.md
-
-../expense-tracker/                  # React application
-├── Dockerfile                       # Application Dockerfile
-├── docker-compose.yml              # Container configuration
-├── nginx.conf                      # Nginx configuration
-└── .dockerignore                   # Docker exclusions
 ```
 
-## Running the Project
+## Quick Start
 
-### 1. Start Expense Tracker Application
-
-#### Navigate to application folder
+### 1. Clone Expense Tracker Application
 ```powershell
-cd ..\expense-tracker
+git clone https://github.com/AhmedShaykh/Expense-Tracker-App-With-React.JS.git expense-tracker-app
+cd lesson23
 ```
 
-#### Build and start container
+### 2. Install Dependencies
 ```powershell
-docker compose up --build -d
+npm install
 ```
 
-#### Verify it's running
-Open browser: http://localhost:3000
-
-#### View logs
+### 3. Configure Environment (Optional)
 ```powershell
-docker compose logs -f
+Copy-Item .env.example .env
+# Edit .env with your ReportPortal credentials
 ```
 
-#### Stop container
+### 4. Start Full Stack
 ```powershell
-docker compose down
+docker-compose up --build -d
 ```
 
-### 2. Run Playwright Tests
+### 5. Verify Services
+- Expense Tracker App: http://localhost:3000
+- ReportPortal UI: http://localhost:8082 (default: superadmin/erebus)
+- ReportPortal API: http://localhost:8080
+
+### 6. Run Tests
+```powershell
+docker-compose run playwright-tests npm test
+```
+
+## Running Tests
 
 #### Return to test folder
 ```powershell
@@ -134,97 +139,106 @@ npm run test:headed
 npm run test:ui
 ```
 
-### 3. ReportPortal Setup
+## ReportPortal Setup
 
-#### Navigate to ReportPortal folder
+### Initial Setup
+
+1. Start ReportPortal services:
 ```powershell
-cd reportportal
+docker-compose up postgres rabbitmq elasticsearch analyzer api ui -d
 ```
 
-#### Start ReportPortal
+2. Wait for services to be healthy (2-3 minutes)
+
+3. Access ReportPortal UI: http://localhost:8082
+
+4. Login with default credentials:
+   - Login: `superadmin`
+   - Password: `erebus`
+
+### Create Project and Get API Key
+
+1. Create new project: Click "Add New Project"
+2. Enter project name (e.g., "expense-tracker")
+3. Go to Profile → API Keys
+4. Generate new API key
+5. Copy API key
+
+### Configure Tests
+
+Create `.env` file from template:
 ```powershell
-docker compose up -d
+Copy-Item .env.example .env
 ```
 
-#### Check container status
-```powershell
-docker compose ps
+Update `.env` with your settings:
+```env
+REPORTPORTAL_API_KEY=your-api-key-here
+REPORTPORTAL_ENDPOINT=http://localhost:8080
+REPORTPORTAL_PROJECT=expense-tracker
+REPORTPORTAL_LAUNCH=Expense Tracker Tests
 ```
 
-#### View logs
+### Run Tests with ReportPortal
+
+In Docker:
 ```powershell
-docker compose logs -f
+docker-compose run -e RP_API_KEY=your-api-key playwright-tests npm test
 ```
 
-#### Access ReportPortal UI
-Open browser: http://localhost:8080
-
-**Default credentials:**
-- Login: `superadmin`
-- Password: `erebus`
-
-#### Stop ReportPortal
+Locally:
 ```powershell
-docker compose down
+npm test
+```
+
+View results at: http://localhost:8082/ui/#expense-tracker/launches
+
+Stop ReportPortal:
+```powershell
+docker-compose down
 ```
 
 ## Docker Management
 
-### Useful Docker Commands
-
+List running containers:
 ```powershell
-# List running containers
 docker ps
+```
 
-# List all containers
-docker ps -a
-
-# View container logs
+View container logs:
+```powershell
 docker logs <container-name>
+```
 
-# Stop all containers
-docker stop $(docker ps -aq)
+Stop all services:
+```powershell
+docker-compose down
+```
 
-# Remove all containers
-docker rm $(docker ps -aq)
+Remove all containers and volumes:
+```powershell
+docker-compose down -v
+```
 
-# List images
-docker images
-
-# Remove unused images
-docker image prune -a
-
-# View resource usage
-docker stats
+Rebuild containers:
+```powershell
+docker-compose build --no-cache
 ```
 
 ## Test Details
 
-### Test Suite: Expense Tracker Application
+Test Suite: Expense Tracker Application
 
-**File:** `tests/expense-tracker/expense-tracker.spec.ts`
+File: `tests/expense-tracker/expense-tracker.spec.ts`
 
-**Test Cases:**
-1. ✅ Should load the application successfully
-2. ✅ Should add a new expense
-3. ✅ Should add multiple expenses
-4. ✅ Should not add expense with empty fields
-5. ✅ Should display expense list correctly
+Test Cases:
+1. Should load the application successfully
+2. Should add a new expense
+3. Should add multiple expenses
+4. Should not add expense with empty fields
+5. Should display expense list correctly
 
-**Page Object:** `src/pages/expense-tracker/expense-tracker-page.ts`
-
-### Running Specific Tests
-
-```powershell
-# Run specific test file
-npx playwright test expense-tracker.spec.ts
-
-# Run tests matching pattern
-npx playwright test --grep "add expense"
-
-# Run in debug mode
-npx playwright test --debug
-```
+Page Object: `src/pages/expense-tracker/expense-tracker-page.ts`
 
 ## Troubleshooting
 
@@ -241,46 +255,24 @@ $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";"
 # Check Docker Desktop is running
 # View container logs
 docker compose logs
-
-# Restart Docker Desktop
+Docker command not found:
+```powershell
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
 ```
 
-### WSL Issues
+Container won't start:
+```powershell
+docker compose logs
+```
 
-**WSL not working after installation:**
-- Reboot your system
+WSL not working after installation:
+- Reboot system
 - Check BIOS virtualization is enabled
 
-**Check WSL status:**
+Tests failing:
 ```powershell
-wsl --status
-wsl --list --verbose
-```
-
-### Test Issues
-
-**Tests failing:**
-```powershell
-# Ensure application is running
 curl http://localhost:3000
-
-# Check Playwright browsers are installed
 npx playwright install
-
-# Run tests in UI mode for debugging
-npm run test:ui
-```
-
-## Technologies Used
-
-- **WSL 2** - Windows Subsystem for Linux
-- **Docker Desktop** - Container platform
-- **Docker Compose** - Container orchestration
-- **Nginx** - Web server for serving React app
-- **React.js** - Frontend application framework
-- **Playwright** - UI testing framework
-- **TypeScript** - Test development language
-- **Node.js** - Runtime environment
 - **ReportPortal** - Test management and reporting system
 
 ## Code Quality
@@ -295,40 +287,53 @@ npm run lint
 npm run format
 ```
 
-## Assignment Requirements
+##WSL 2 - Windows Subsystem for Linux
+- Docker Desktop - Container platform
+- Docker Compose - Container orchestration
+- Nginx - Web server
+- React.js - Frontend framework
+- Playwright - UI testing framework
+- TypeScript - Test language
+- Node.js - Runtime environment
+- ReportPortal - Test reporting system
 
-✅ **1. WSL 2 Installation** - Installed and configured  
-✅ **2. Docker Installation** - Docker Desktop 29.1.3 running  
-✅ **3. Expense Tracker Containerization** - Running on port 3000  
-✅ **4. UI Test Automation** - 5 tests written and passing  
-✅ **5. ReportPortal Setup** - Configured with docker-compose
+## Code Quality
 
-## Quick Commands Reference
-
+ESLint:
 ```powershell
-# Start everything
-cd ..\expense-tracker && docker compose up -d
-cd ..\lesson23 && npm test
-
-# Stop everything
-cd ..\expense-tracker && docker compose down
-cd reportportal && docker compose down
-
-# View all running containers
-docker ps
-
-# View application
-start http://localhost:3000
-
-# View ReportPortal
-start http://localhost:8080
+npm run lint
 ```
 
-## License
+Prettier:
+```powershell
+npm run format
+```
 
-This is an educational project for Lesson 23.
+## Assignment Requirements
 
-## Repository
+1. WSL 2 Installation - Installed and configured
+2. Docker Installation - Docker Desktop running
+3. Expense Tracker Containerization - Running on port 3000
+4. UI Test Automation - 5 tests written and passing
+5. ReportPortal Setup - Configured with docker-compose
 
-- **Expense Tracker App:** [AhmedShaykh/Expense-Tracker-App-With-React.JS](https://github.com/AhmedShaykh/Expense-Tracker-App-With-React.JS)
-- **ReportPortal:** [Official Documentation](https://reportportal.io/)
+## Quick Commands
+
+Start everything:
+```powershell
+docker-compose up --build -d
+```
+
+Stop everything:
+```powershell
+docker-compose down
+```
+
+View running containers:
+```powershell
+docker ps
+```
+
+Access services:
+- Expense Tracker: http://localhost:3000
+- ReportPortal: http://localhost:8082

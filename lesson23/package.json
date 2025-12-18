@@ -1,7 +1,7 @@
 {
-  "name": "lesson21-football-automation",
+  "name": "lesson23-expense-tracker-automation",
   "version": "1.0.0",
-  "description": "Playwright test automation project for Football.ua using component-based Page Object Model",
+  "description": "Playwright test automation for Expense Tracker with Docker and ReportPortal",
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
@@ -31,6 +31,7 @@
     "@eslint/js": "^9.39.1",
     "@playwright/mcp": "^0.0.52",
     "@playwright/test": "^1.57.0",
+    "@reportportal/agent-js-playwright": "^5.1.5",
     "@stylistic/eslint-plugin": "^5.6.1",
     "@stylistic/eslint-plugin-ts": "^4.4.1",
     "@types/node": "^24.10.1",

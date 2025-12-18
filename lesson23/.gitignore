@@ -8,6 +8,9 @@ node_modules/
 /playwright/.auth/
 .auth/
 
+# Environment variables
+.env
+
 # Allure Reports
 /allure-results/
 /allure-report/

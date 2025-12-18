@@ -31,7 +31,8 @@ export class ExpenseTrackerPage {
     }
 
     public async goto(): Promise<void> {
-        await this.page.goto('http://localhost:3000');
+        const baseURL = process.env.BASE_URL || 'http://localhost:3000';
+        await this.page.goto(baseURL);
         await this.page.waitForLoadState('networkidle');
     }
 
