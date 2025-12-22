@@ -1,0 +1,152 @@
+version: '3.8'
+
+services:
+  expense-tracker-app:
+    build:
+      context: ./expense-tracker-app
+      dockerfile: Dockerfile
+    container_name: expense-tracker-app
+    ports:
+      - "3000:80"
+    networks:
+      - test-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  playwright-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: playwright-tests
+    depends_on:
+      expense-tracker-app:
+        condition: service_healthy
+    environment:
+      - BASE_URL=http://expense-tracker-app:80
+      - CI=true
+    volumes:
+      - ./test-results:/tests/test-results
+      - ./allure-results:/tests/allure-results
+      - ./playwright-report:/tests/playwright-report
+    networks:
+      - test-network
+    command: npm test
+
+  postgres:
+    image: postgres:12-alpine
+    container_name: reportportal-postgres
+    environment:
+      POSTGRES_USER: rpuser
+      POSTGRES_PASSWORD: rppass
+      POSTGRES_DB: reportportal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - reportportal-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rpuser -d reportportal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3.7.16-management
+    container_name: reportportal-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+    networks:
+      - reportportal-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    container_name: reportportal-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - reportportal-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200/_cluster/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  analyzer:
+    image: reportportal/service-auto-analyzer:5.7.4
+    container_name: reportportal-analyzer
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      LOGGING_LEVEL: info
+      AMQP_EXCHANGE_NAME: analyzer-default
+      AMQP_URL: amqp://rabbitmq:rabbitmq@rabbitmq:5672
+      ES_HOSTS: http://elasticsearch:9200
+    networks:
+      - reportportal-network
+
+  api:
+    image: reportportal/service-api:5.7.4
+    container_name: reportportal-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      RP_DB_HOST: postgres
+      RP_DB_PORT: 5432
+      RP_DB_NAME: reportportal
+      RP_DB_USER: rpuser
+      RP_DB_PASS: rppass
+      RP_AMQP_HOST: rabbitmq
+      RP_AMQP_PORT: 5672
+      RP_AMQP_USER: rabbitmq
+      RP_AMQP_PASS: rabbitmq
+      JAVA_OPTS: -Xmx1g -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp
+    ports:
+      - "8080:8080"
+    networks:
+      - reportportal-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  ui:
+    image: reportportal/service-ui:5.7.4
+    container_name: reportportal-ui
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      RP_SERVER_PORT: 8080
+    ports:
+      - "8082:8080"
+    networks:
+      - reportportal-network
+
+networks:
+  test-network:
+    driver: bridge
+  reportportal-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  elasticsearch_data:
