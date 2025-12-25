@@ -29,6 +29,10 @@ export const test = base.extend<ApiFixtures, WorkerFixtures>({
                 const authState = JSON.parse(fs.readFileSync(workerStorageState, 'utf-8'));
                 console.log('[API Fixture] Cookies count:', authState.cookies?.length || 0);
                 console.log('[API Fixture] Origins count:', authState.origins?.length || 0);
+                authState.cookies?.forEach((cookie: { name: string; value: string; domain: string }) => {
+                    const maskedValue = cookie.value.substring(0, 10) + '...';
+                    console.log(`[API Fixture] Cookie: ${cookie.name} = ${maskedValue} (domain: ${cookie.domain})`);
+                });
             } else {
                 console.log('[API Fixture] Auth file does NOT exist!');
             }

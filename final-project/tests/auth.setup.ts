@@ -8,6 +8,10 @@ setup('authenticate user', async ({ page }) => {
     const testEmail = process.env.TEST_USER_EMAIL || 'test@example.com';
     const testPassword = process.env.TEST_USER_PASSWORD || 'TestPassword123!';
 
+    if (process.env.CI) {
+        console.log('[Auth Setup] Using email:', testEmail);
+    }
+
     await page.goto('https://new.fophelp.pro');
     await page.waitForLoadState('networkidle');
 

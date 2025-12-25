@@ -2,9 +2,9 @@
 
 on:
     push:
-        branches: [main, master, develop]
+        branches: [main, master, develop, final_project]
     pull_request:
-        branches: [main, master, develop]
+        branches: [main, master, develop, final_project]
     schedule:
         - cron: '0 3 * * *'
     workflow_dispatch:
@@ -26,19 +26,28 @@ jobs:
               with:
                   node-version: '20'
                   cache: 'npm'
+                  cache-dependency-path: final-project/package-lock.json
 
             - name: Install dependencies
+              working-directory: final-project
               run: npm ci
 
             - name: Install Playwright Browsers
+              working-directory: final-project
               run: npx playwright install --with-deps
 
             - name: Create .env file
               run: |
-                  echo "TEST_USER_EMAIL=${{ secrets.TEST_USER_EMAIL }}" >> .env
-                  echo "TEST_USER_PASSWORD=${{ secrets.TEST_USER_PASSWORD }}" >> .env
+                  cd final-project
+                  echo "BASE_URL=https://new.fophelp.pro" >> .env
+                  echo "API_BASE_URL=https://new.fophelp.pro/api" >> .env
+                  echo "TEST_USER_EMAIL=jobirat163@arugy.com" >> .env
+                  echo "TEST_USER_PASSWORD=TestQA2024!" >> .env
+                  echo "Created .env file:"
+                  cat .env
 
             - name: Run Playwright tests
+              working-directory: final-project
               run: npx playwright test --shard=${{ matrix.shard }}/${{ strategy.job-total }}
               env:
                   CI: true
@@ -48,7 +57,7 @@ jobs:
               if: always()
               with:
                   name: playwright-report-${{ matrix.shard }}
-                  path: playwright-report/
+                  path: final-project/playwright-report/
                   retention-days: 30
 
             - name: Upload Test Results
@@ -56,7 +65,7 @@ jobs:
               if: always()
               with:
                   name: test-results-${{ matrix.shard }}
-                  path: test-results/
+                  path: final-project/test-results/
                   retention-days: 30
 
             - name: Upload Allure Results
@@ -64,7 +73,7 @@ jobs:
               if: always()
               with:
                   name: allure-results-${{ matrix.shard }}
-                  path: allure-results/
+                  path: final-project/allure-results/
                   retention-days: 30
 
     generate-allure-report:
