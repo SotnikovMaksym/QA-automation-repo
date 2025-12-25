@@ -44,7 +44,7 @@ test.describe('Income Management - Full CRUD', () => {
     });
     test('04 - should display incomes list', async () => {
         const isTableVisible = await incomesPage.isIncomeTableVisible();
-        expect(isTableVisible).toBeDefined();
+        expect(isTableVisible).toBe(true);
     });
     test('05 - should create income with USD currency', async ({ page }) => {
         await incomesPage.clickAddIncome();

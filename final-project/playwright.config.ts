@@ -9,8 +9,8 @@ export default defineConfig({
     testDir: './tests',
     fullyParallel: true,
     forbidOnly: !!process.env.CI,
-    retries: process.env.CI ? 2 : 0,
-    workers: process.env.CI ? 2 : undefined,
+    retries: process.env.CI ? 1 : 0,
+    workers: process.env.CI ? 1 : undefined,
     reporter: [
         ['html', { outputFolder: 'playwright-report', open: 'never' }],
         ['json', { outputFile: 'test-results/results.json' }],
@@ -47,8 +47,8 @@ export default defineConfig({
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
-        actionTimeout: 15000,
-        navigationTimeout: 30000,
+        actionTimeout: process.env.CI ? 20000 : 15000,
+        navigationTimeout: process.env.CI ? 45000 : 30000,
         viewport: { width: 1280, height: 720 },
         locale: 'en-US',
         timezoneId: 'Europe/Kiev'

@@ -44,7 +44,7 @@ test.describe('Expense Management - Full CRUD', () => {
     });
     test('04 - should display expenses list', async () => {
         const isTableVisible = await expensesPage.isExpenseTableVisible();
-        expect(isTableVisible).toBeTruthy();
+        expect(isTableVisible).toBe(true);
     });
     test('05 - should filter by year and month', async () => {
         await expensesPage.filterByYear();
