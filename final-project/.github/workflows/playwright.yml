@@ -13,10 +13,6 @@ jobs:
     test:
         timeout-minutes: 60
         runs-on: ubuntu-latest
-        strategy:
-            fail-fast: false
-            matrix:
-                shard: [1, 2]
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -48,7 +44,7 @@ jobs:
 
             - name: Run Playwright tests
               working-directory: final-project
-              run: npx playwright test --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+              run: npx playwright test
               env:
                   CI: true
 
@@ -56,7 +52,7 @@ jobs:
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: playwright-report-${{ matrix.shard }}
+                  name: playwright-report
                   path: final-project/playwright-report/
                   retention-days: 30
 
@@ -64,7 +60,7 @@ jobs:
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: test-results-${{ matrix.shard }}
+                  name: test-results
                   path: final-project/test-results/
                   retention-days: 30
 
@@ -72,7 +68,7 @@ jobs:
               uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: allure-results-${{ matrix.shard }}
+                  name: allure-results
                   path: final-project/allure-results/
                   retention-days: 30
 
@@ -87,9 +83,8 @@ jobs:
             - name: Download all Allure results
               uses: actions/download-artifact@v4
               with:
+                  name: allure-results
                   path: allure-results
-                  pattern: allure-results-*
-                  merge-multiple: true
 
             - name: Get Allure history
               uses: actions/checkout@v4
