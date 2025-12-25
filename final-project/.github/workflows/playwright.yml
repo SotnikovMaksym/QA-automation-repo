@@ -1,0 +1,139 @@
+﻿name: Playwright Tests CI/CD
+
+on:
+    push:
+        branches: [main, master, develop]
+    pull_request:
+        branches: [main, master, develop]
+    schedule:
+        - cron: '0 3 * * *'
+    workflow_dispatch:
+
+jobs:
+    test:
+        timeout-minutes: 60
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                shard: [1, 2]
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Install Playwright Browsers
+              run: npx playwright install --with-deps
+
+            - name: Create .env file
+              run: |
+                  echo "TEST_USER_EMAIL=${{ secrets.TEST_USER_EMAIL }}" >> .env
+                  echo "TEST_USER_PASSWORD=${{ secrets.TEST_USER_PASSWORD }}" >> .env
+
+            - name: Run Playwright tests
+              run: npx playwright test --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+              env:
+                  CI: true
+
+            - name: Upload Playwright Report
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report-${{ matrix.shard }}
+                  path: playwright-report/
+                  retention-days: 30
+
+            - name: Upload Test Results
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: test-results-${{ matrix.shard }}
+                  path: test-results/
+                  retention-days: 30
+
+            - name: Upload Allure Results
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: allure-results-${{ matrix.shard }}
+                  path: allure-results/
+                  retention-days: 30
+
+    generate-allure-report:
+        runs-on: ubuntu-latest
+        needs: test
+        if: always()
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Download all Allure results
+              uses: actions/download-artifact@v4
+              with:
+                  path: allure-results
+                  pattern: allure-results-*
+                  merge-multiple: true
+
+            - name: Get Allure history
+              uses: actions/checkout@v4
+              if: always()
+              continue-on-error: true
+              with:
+                  ref: gh-pages
+                  path: gh-pages
+
+            - name: Setup Allure
+              uses: simple-elf/allure-report-action@master
+              if: always()
+              with:
+                  allure_results: allure-results
+                  allure_history: allure-history
+                  keep_reports: 20
+
+            - name: Deploy Allure report to GitHub Pages
+              if: always()
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_branch: gh-pages
+                  publish_dir: allure-history
+
+            - name: Upload Allure Report
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: allure-report
+                  path: allure-history/
+                  retention-days: 30
+
+    lint-and-format:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run ESLint
+              run: npm run lint
+
+            - name: Check formatting
+              run: npm run format:check
+
+            - name: TypeScript compilation check
+              run: npx tsc --noEmit

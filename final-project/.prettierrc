@@ -1,0 +1,26 @@
+{
+  "semi": true,
+  "printWidth": 140,
+  "tabWidth": 4,
+  "singleQuote": true,
+  "trailingComma": "none",
+  "useTabs": false,
+  "arrowParens": "avoid",
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "quoteProps": "as-needed",
+  "overrides": [
+    {
+      "files": "*.html",
+      "options": {
+        "parser": "html"
+      }
+    },
+    {
+      "files": "*.component.html",
+      "options": {
+        "parser": "angular"
+      }
+    }
+  ]
+}
