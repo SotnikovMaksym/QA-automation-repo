@@ -69,7 +69,10 @@ test.describe('Expense Management - Full CRUD', () => {
         await page.locator('#comment').fill(TEST_DATA.expense.comments.validation);
 
         const modal = page.locator('.modal-content, [role="dialog"]').first();
-        const submitButton = modal.locator('button').filter({ hasText: /зберегти|save|додати/i }).first();
+        const submitButton = modal
+            .locator('button')
+            .filter({ hasText: /зберегти|save|додати/i })
+            .first();
         await submitButton.click();
 
         const commentField = page.locator('#comment');

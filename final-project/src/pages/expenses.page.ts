@@ -83,7 +83,10 @@ export class ExpensesPage extends BasePage {
 
     public async submitExpenseForm(): Promise<void> {
         const modal = this.page.locator('.modal-content, [role="dialog"]').first();
-        const submitButton = modal.locator('button').filter({ hasText: /зберегти|save|додати/i }).first();
+        const submitButton = modal
+            .locator('button')
+            .filter({ hasText: /зберегти|save|додати/i })
+            .first();
         await submitButton.click();
     }
 
@@ -98,7 +101,10 @@ export class ExpensesPage extends BasePage {
     }
 
     public async filterByYear(year?: number): Promise<void> {
-        const yearButton = this.page.locator('button').filter({ hasText: /всі роки|роки/i }).first();
+        const yearButton = this.page
+            .locator('button')
+            .filter({ hasText: /всі роки|роки/i })
+            .first();
         const isVisible = await yearButton.isVisible();
 
         if (!isVisible) {
@@ -108,7 +114,10 @@ export class ExpensesPage extends BasePage {
         await yearButton.click();
 
         const targetYear = year || new Date().getFullYear();
-        const yearOption = this.page.locator('label, div, li').filter({ hasText: new RegExp(targetYear.toString()) }).first();
+        const yearOption = this.page
+            .locator('label, div, li')
+            .filter({ hasText: new RegExp(targetYear.toString()) })
+            .first();
 
         const optionVisible = await yearOption.isVisible({ timeout: 3000 });
         if (optionVisible) {

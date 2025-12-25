@@ -43,6 +43,8 @@ jobs:
 
             - name: Create .env file
               run: |
+                  echo "BASE_URL=https://new.fophelp.pro" >> .env
+                  echo "API_BASE_URL=https://new.fophelp.pro/api" >> .env
                   echo "TEST_USER_EMAIL=${{ secrets.TEST_USER_EMAIL }}" >> .env
                   echo "TEST_USER_PASSWORD=${{ secrets.TEST_USER_PASSWORD }}" >> .env
 
@@ -149,3 +151,4 @@ jobs:
 
             - name: TypeScript compilation check
               run: npx tsc --noEmit
+

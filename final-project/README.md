@@ -63,26 +63,26 @@ Enterprise-grade test automation framework with **35 production tests** covering
 ```
 1. Setup Phase (auth.setup.ts)
    ↓ Saves → playwright/.auth/user.json
-   
+
 2. Worker Initialization
    ↓ Loads → Shared auth state
-   
+
 3. Test Execution
    ↓ Auto-refresh if needed (API tests)
-   
+
 4. Cleanup (auth.teardown.ts)
    ↓ Preserves state for next run
 ```
 
 ## 🛠 Technologies
 
-| Category       | Technology     | Version |
-| -------------- | -------------- | ------- |
-| **Language**   | TypeScript     | 5.9.3   |
-| **Framework**  | Playwright     | 1.57.0  |
-| **Runtime**    | Node.js        | 20.x    |
-| **Reporting**  | Allure         | 3.4.3   |
-| **Linting**    | ESLint         | 9.39.2  |
+| Category      | Technology | Version |
+| ------------- | ---------- | ------- |
+| **Language**  | TypeScript | 5.9.3   |
+| **Framework** | Playwright | 1.57.0  |
+| **Runtime**   | Node.js    | 20.x    |
+| **Reporting** | Allure     | 3.4.3   |
+| **Linting**   | ESLint     | 9.39.2  |
 
 ## 📁 Project Structure
 
@@ -329,18 +329,21 @@ Generated in `test-results/`:
 Automated testing configured in [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml)
 
 **Triggers:**
+
 - Push to `main`, `master`, `develop`
 - Pull requests
 - Daily schedule (3:00 UTC)
 - Manual dispatch
 
 **Jobs:**
+
 - Test execution (parallel, 2 shards)
 - Allure report generation
 - Code quality checks (ESLint, TypeScript)
 
 **Setup:**
 Add GitHub Secrets in repository settings:
+
 - `TEST_USER_EMAIL`
 - `TEST_USER_PASSWORD`
 
@@ -404,14 +407,14 @@ test.describe('Feature', () => {
 });
 ```
 
-##  Test Coverage Summary
+## Test Coverage Summary
 
-| Category            | Tests     | Coverage |
-| ------------------- | --------- | -------- |
-| **E2E UI**          | 14 tests  | 100%     |
-| **API**             | 19 tests  | 100%     |
-| **Authentication**  | 2 tests   | 100%     |
-| **Total**           | 35 tests  | 100%     |
+| Category           | Tests    | Coverage |
+| ------------------ | -------- | -------- |
+| **E2E UI**         | 14 tests | 100%     |
+| **API**            | 19 tests | 100%     |
+| **Authentication** | 2 tests  | 100%     |
+| **Total**          | 35 tests | 100%     |
 
 ## ✅ Project Checklist
 
