@@ -1,5 +1,4 @@
 import { test as base, expect, request as playwrightRequest, APIRequestContext, APIResponse } from '@playwright/test';
-import fs from 'fs';
 
 interface ApiFixtures {
     authenticatedAPI: APIRequestContext;
