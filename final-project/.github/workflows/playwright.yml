@@ -1,5 +1,6 @@
 ﻿name: Playwright Tests CI/CD
 
+# Updated workflow without sharding - single job execution
 on:
     push:
         branches: [main, master, develop, final_project]
