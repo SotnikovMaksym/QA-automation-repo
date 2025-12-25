@@ -30,10 +30,24 @@ setup('authenticate user', async ({ page }) => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
 
+    // Log auth state in CI for debugging
+    if (process.env.CI) {
+        console.log('[Auth Setup] Current URL:', page.url());
+        const cookies = await page.context().cookies();
+        console.log('[Auth Setup] Cookies count:', cookies.length);
+        cookies.forEach(cookie =>
+            console.log(`[Auth Setup] Cookie: ${cookie.name} (domain: ${cookie.domain}, httpOnly: ${cookie.httpOnly})`)
+        );
+    }
+
     const authDir = path.dirname(authFile);
     if (!fs.existsSync(authDir)) {
         fs.mkdirSync(authDir, { recursive: true });
     }
 
     await page.context().storageState({ path: authFile });
+
+    if (process.env.CI) {
+        console.log('[Auth Setup] Saved auth state to:', authFile);
+    }
 });
