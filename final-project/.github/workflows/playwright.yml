@@ -1,5 +1,6 @@
-name: Playwright Tests (Final Project)
+﻿name: Playwright Tests - Single Job
 
+# Updated workflow without sharding - single job execution only
 on:
     push:
         branches: [main, master, develop, final_project]
@@ -11,69 +12,64 @@ on:
 
 jobs:
     test:
-        defaults:
-            run:
-                working-directory: final-project
-        name: Run Playwright Tests
         timeout-minutes: 60
         runs-on: ubuntu-latest
-
-        strategy:
-            fail-fast: false
-            matrix:
-                shardIndex: [1, 2]
-                shardTotal: [2]
-
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v4
               with:
                   node-version: '20'
                   cache: 'npm'
                   cache-dependency-path: final-project/package-lock.json
 
             - name: Install dependencies
+              working-directory: final-project
               run: npm ci
 
             - name: Install Playwright Browsers
-              run: npx playwright install --with-deps chromium
+              working-directory: final-project
+              run: npx playwright install --with-deps
 
             - name: Create .env file
               run: |
+                  cd final-project
                   echo "BASE_URL=https://new.fophelp.pro" >> .env
                   echo "API_BASE_URL=https://new.fophelp.pro/api" >> .env
-                  echo "TEST_USER_EMAIL=${{ secrets.TEST_USER_EMAIL }}" >> .env
-                  echo "TEST_USER_PASSWORD=${{ secrets.TEST_USER_PASSWORD }}" >> .env
+                  echo "TEST_USER_EMAIL=jobirat163@arugy.com" >> .env
+                  echo "TEST_USER_PASSWORD=TestQA2024!" >> .env
+                  echo "Created .env file:"
+                  cat .env
 
             - name: Run Playwright tests
-              run: npx playwright test --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }}
+              working-directory: final-project
+              run: npx playwright test
               env:
                   CI: true
 
             - name: Upload Playwright Report
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: playwright-report-${{ matrix.shardIndex }}
+                  name: playwright-report
                   path: final-project/playwright-report/
                   retention-days: 30
 
             - name: Upload Test Results
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: test-results-${{ matrix.shardIndex }}
+                  name: test-results
                   path: final-project/test-results/
                   retention-days: 30
 
             - name: Upload Allure Results
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v4
               if: always()
               with:
-                  name: allure-results-${{ matrix.shardIndex }}
+                  name: allure-results
                   path: final-project/allure-results/
                   retention-days: 30
 
@@ -83,17 +79,16 @@ jobs:
         if: always()
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
 
             - name: Download all Allure results
-              uses: actions/download-artifact@v7
+              uses: actions/download-artifact@v4
               with:
-                  pattern: allure-results-*
+                  name: allure-results
                   path: allure-results
-                  merge-multiple: true
 
             - name: Get Allure history
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
               if: always()
               continue-on-error: true
               with:
@@ -117,7 +112,7 @@ jobs:
                   publish_dir: allure-history
 
             - name: Upload Allure Report
-              uses: actions/upload-artifact@v6
+              uses: actions/upload-artifact@v4
               if: always()
               with:
                   name: allure-report
@@ -125,20 +120,16 @@ jobs:
                   retention-days: 30
 
     lint-and-format:
-        defaults:
-            run:
-                working-directory: final-project
         runs-on: ubuntu-latest
         steps:
             - name: Checkout repository
-              uses: actions/checkout@v6
+              uses: actions/checkout@v4
 
             - name: Setup Node.js
-              uses: actions/setup-node@v6
+              uses: actions/setup-node@v4
               with:
                   node-version: '20'
                   cache: 'npm'
-                  cache-dependency-path: final-project/package-lock.json
 
             - name: Install dependencies
               run: npm ci
@@ -151,4 +142,3 @@ jobs:
 
             - name: TypeScript compilation check
               run: npx tsc --noEmit
-
